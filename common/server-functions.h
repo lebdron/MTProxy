@@ -106,12 +106,16 @@ void add_builtin_parse_options (void);
 typedef void (*extra_debug_handler_t)(void);
 extern extra_debug_handler_t extra_debug_handler;
 
-static inline void barrier (void) {  
+static inline void barrier (void) {
   asm volatile("": : :"memory");
 }
 
 static inline void mfence (void) {
+#if defined(__aarch64__)
+  asm volatile("dsb sy" ::: "memory");
+#else
   asm volatile ("mfence": : :"memory");
+#endif
 }
 
 //extern struct multicast_host multicast_hosts[];

@@ -14,9 +14,9 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Mtproto-proxy Library.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright 2015-2016 Telegram Messenger Inc             
-              2015-2016 Vitaly Valtman     
-    
+    Copyright 2015-2016 Telegram Messenger Inc
+              2015-2016 Vitaly Valtman
+
 */
 #define        _FILE_OFFSET_BITS        64
 
@@ -52,15 +52,11 @@
 
 #include "engine/engine.h"
 
-struct process_id PID;
-
 extern int zheap_debug;
 long long queries_allocated;
 long long max_queries_allocated;
 long long max_queries_allocated_sec;
 long long max_queries_allocated_prev_sec;
-
-long long total_vv_tree_nodes;
 
 int tl_rpc_op_stat __attribute__ ((weak));
 int op_stat_write (stats_buffer_t *sb) __attribute__ ((weak));

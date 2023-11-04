@@ -13,15 +13,13 @@
 
     You should have received a copy of the GNU Lesser General Public License
     along with Mtproto-proxy Library.  If not, see <http://www.gnu.org/licenses/>.
-    
-    Copyright 2015-2016 Telegram Messenger Inc             
-              2015-2016 Vitaly Valtman     
+
+    Copyright 2015-2016 Telegram Messenger Inc
+              2015-2016 Vitaly Valtman
 */
 
 
 #include <assert.h>
-      
-long long total_vv_tree_nodes;
 
 #define SUFFIX2(a,b) a ## b
 #define SUFFIX(a,b) SUFFIX2(a,b)
@@ -235,7 +233,7 @@ TREE_PREFIX void SUFFIX(tree_split_,TREE_NAME) (TREE_NODE_TYPE **L, TREE_NODE_TY
 TREE_PREFIX void SUFFIX(tree_split_p_,TREE_NAME) (TREE_NODE_TYPE **L, TREE_NODE_TYPE **R,
     TREE_NODE_TYPE *T, X_TYPE *x) {
   if (!T) { *L = *R = NULL; return; }
-  
+
   #ifdef TREE_PTHREAD
   T = SUFFIX(tree_clone_,TREE_NAME) (T);
   #endif
@@ -274,7 +272,7 @@ TREE_PREFIX TREE_NODE_TYPE *SUFFIX(tree_insert_,TREE_NAME) (TREE_NODE_TYPE *T, X
     #endif
     return P;
   }
-  
+
   #ifdef TREE_PTHREAD
   T = SUFFIX(tree_clone_,TREE_NAME) (T);
   #endif
@@ -324,12 +322,12 @@ TREE_PREFIX void SUFFIX(tree_insert_sub_,TREE_NAME) (TREE_NODE_TYPE **T, X_TYPE 
     }
   #endif
 
-  *T = SUFFIX(tree_insert_,TREE_NAME)(*T, x, y 
+  *T = SUFFIX(tree_insert_,TREE_NAME)(*T, x, y
     #ifdef TREE_WEIGHT
     , weight
     #endif
     );
-  
+
   #ifdef TREE_PTHREAD
     if (TT) {
       mfence ();
@@ -355,7 +353,7 @@ TREE_PREFIX TREE_NODE_TYPE *SUFFIX(tree_insert_p_,TREE_NAME) (TREE_NODE_TYPE *T,
     #endif
     return P;
   }
-  
+
   #ifdef TREE_PTHREAD
   T = SUFFIX(tree_clone_,TREE_NAME) (T);
   #endif
@@ -450,7 +448,7 @@ TREE_PREFIX void SUFFIX(tree_delete_sub_,TREE_NAME) (TREE_NODE_TYPE **T, X_TYPE 
   #endif
 
   *T = SUFFIX(tree_delete_,TREE_NAME)(*T, x);
-  
+
   #ifdef TREE_PTHREAD
     if (TT) {
       mfence ();
@@ -566,7 +564,7 @@ TREE_PREFIX int SUFFIX(tree_count_,TREE_NAME) (TREE_NODE_TYPE *T) {
 
 
 TREE_PREFIX TREE_NODE_TYPE *SUFFIX (tree_alloc_, TREE_NAME) (X_TYPE x, Y_TYPE y) {
-  TREE_NODE_TYPE *T = 
+  TREE_NODE_TYPE *T =
   #ifndef TREE_MALLOC
     zmalloc0 (sizeof (*T));
   #else
@@ -578,7 +576,6 @@ TREE_PREFIX TREE_NODE_TYPE *SUFFIX (tree_alloc_, TREE_NAME) (X_TYPE x, Y_TYPE y)
   T->refcnt = 1;
   #endif
   T->left = T->right = NULL;
-  __sync_fetch_and_add (&total_vv_tree_nodes, 1);
   return T;
 }
 
@@ -603,7 +600,6 @@ TREE_PREFIX void SUFFIX (tree_free_, TREE_NAME) (TREE_NODE_TYPE *T) {
   #else
     free (T);
   #endif
-  __sync_fetch_and_add (&total_vv_tree_nodes, -1);
 }
 
 #ifdef TREE_PTHREAD
@@ -619,7 +615,7 @@ TREE_PREFIX TREE_NODE_TYPE *SUFFIX(tree_clone_, TREE_NAME) (TREE_NODE_TYPE *T) {
     __sync_fetch_and_add (&T->left->refcnt, 1);
     R->left = T->left;
   }
-  
+
   if (T->right) {
     __sync_fetch_and_add (&T->right->refcnt, 1);
     R->right = T->right;

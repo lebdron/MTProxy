@@ -409,7 +409,6 @@ int worker_id, workers, slave_mode, parent_pid;
 int pids[MAX_WORKERS];
 
 long long get_queries;
-long long http_queries;
 int pending_http_queries;
 
 long long active_rpcs, active_rpcs_created;
@@ -432,28 +431,28 @@ static void update_local_stats_copy (struct worker_stats *S) {
   fetch_aes_crypto_stat (&S->allocated_aes_crypto, &S->allocated_aes_crypto_temp);
   fetch_buffers_stat (&S->bufs);
 
-  UPD (ev_heap_size); 
+  UPD (ev_heap_size);
 
   UPD (get_queries);
   UPD (http_connections);
-  UPD (pending_http_queries); 
+  UPD (pending_http_queries);
   UPD (active_rpcs);
-  UPD (active_rpcs_created); 
+  UPD (active_rpcs_created);
   UPD (rpc_dropped_running);
   UPD (rpc_dropped_answers);
-  UPD (tot_forwarded_queries); 
-  UPD (expired_forwarded_queries); 
-  UPD (dropped_queries); 
-  UPD (tot_forwarded_responses); 
-  UPD (dropped_responses); 
+  UPD (tot_forwarded_queries);
+  UPD (expired_forwarded_queries);
+  UPD (dropped_queries);
+  UPD (tot_forwarded_responses);
+  UPD (dropped_responses);
   UPD (tot_forwarded_simple_acks);
   UPD (dropped_simple_acks);
   UPD (mtproto_proxy_errors);
   UPD (connections_failed_lru);
   UPD (connections_failed_flood);
-  UPD (ext_connections); 
-  UPD (ext_connections_created); 
-  UPD (http_queries); 
+  UPD (ext_connections);
+  UPD (ext_connections_created);
+  UPD (http_queries);
   UPD (http_bad_headers);
 #undef UPD
   __sync_synchronize();
@@ -467,21 +466,21 @@ static inline void add_stats (struct worker_stats *W) {
   UPD (tot_dh_rounds[1]);
   UPD (tot_dh_rounds[2]);
 
-  UPD (conn.active_connections); 
-  UPD (conn.active_dh_connections); 
-  UPD (conn.outbound_connections); 
-  UPD (conn.active_outbound_connections); 
-  UPD (conn.ready_outbound_connections); 
+  UPD (conn.active_connections);
+  UPD (conn.active_dh_connections);
+  UPD (conn.outbound_connections);
+  UPD (conn.active_outbound_connections);
+  UPD (conn.ready_outbound_connections);
   UPD (conn.active_special_connections);
   UPD (conn.max_special_connections);
   UPD (conn.allocated_connections);
   UPD (conn.allocated_outbound_connections);
   UPD (conn.allocated_inbound_connections);
   UPD (conn.allocated_socket_connections);
-  UPD (conn.allocated_targets); 
-  UPD (conn.ready_targets); 
-  UPD (conn.active_targets); 
-  UPD (conn.inactive_targets); 
+  UPD (conn.allocated_targets);
+  UPD (conn.ready_targets);
+  UPD (conn.active_targets);
+  UPD (conn.inactive_targets);
   UPD (conn.tcp_readv_calls);
   UPD (conn.tcp_readv_intr);
   UPD (conn.tcp_readv_bytes);
@@ -493,40 +492,40 @@ static inline void add_stats (struct worker_stats *W) {
   UPD (conn.accept_rate_limit_failed);
   UPD (conn.accept_init_accepted_failed);
 
-  UPD (allocated_aes_crypto); 
-  UPD (allocated_aes_crypto_temp); 
+  UPD (allocated_aes_crypto);
+  UPD (allocated_aes_crypto_temp);
 
-  UPD (bufs.total_used_buffers_size); 
-  UPD (bufs.allocated_buffer_bytes); 
-  UPD (bufs.total_used_buffers); 
+  UPD (bufs.total_used_buffers_size);
+  UPD (bufs.allocated_buffer_bytes);
+  UPD (bufs.total_used_buffers);
   UPD (bufs.allocated_buffer_chunks);
   UPD (bufs.max_allocated_buffer_chunks);
   UPD (bufs.max_allocated_buffer_bytes);
   UPD (bufs.max_buffer_chunks);
   UPD (bufs.buffer_chunk_alloc_ops);
 
-  UPD (ev_heap_size); 
+  UPD (ev_heap_size);
 
   UPD (get_queries);
   UPD (http_connections);
-  UPD (pending_http_queries); 
+  UPD (pending_http_queries);
   UPD (active_rpcs);
-  UPD (active_rpcs_created); 
+  UPD (active_rpcs_created);
   UPD (rpc_dropped_running);
   UPD (rpc_dropped_answers);
-  UPD (tot_forwarded_queries); 
-  UPD (expired_forwarded_queries); 
-  UPD (dropped_queries); 
-  UPD (tot_forwarded_responses); 
-  UPD (dropped_responses); 
+  UPD (tot_forwarded_queries);
+  UPD (expired_forwarded_queries);
+  UPD (dropped_queries);
+  UPD (tot_forwarded_responses);
+  UPD (dropped_responses);
   UPD (tot_forwarded_simple_acks);
   UPD (dropped_simple_acks);
   UPD (mtproto_proxy_errors);
   UPD (connections_failed_lru);
   UPD (connections_failed_flood);
-  UPD (ext_connections); 
-  UPD (ext_connections_created); 
-  UPD (http_queries); 
+  UPD (ext_connections);
+  UPD (ext_connections_created);
+  UPD (http_queries);
   UPD (http_bad_headers);
 #undef UPD
 }
@@ -689,7 +688,7 @@ void mtfront_prepare_stats (stats_buffer_t *sb) {
 	     S(tot_dh_rounds[2]),
 	     SW(conn.active_special_connections),
 	     SW(conn.max_special_connections),
-	     S(conn.accept_init_accepted_failed), 
+	     S(conn.accept_init_accepted_failed),
 	     S(conn.accept_calls_failed),
 	     S(conn.accept_connection_limit_failed),
 	     S(conn.accept_rate_limit_failed),
@@ -891,7 +890,7 @@ int process_client_packet (struct tl_in_state *tlio_in, int op, connection_job_t
     }
     break;
   case RPC_CLOSE_EXT:
-    if (len == 12) { 
+    if (len == 12) {
       long long out_conn_id = tl_fetch_long ();
       vkprintf (2, "got RPC_CLOSE_EXT for connection = %llx\n", out_conn_id);
       struct ext_connection *Ex = find_ext_connection_by_out_conn_id (out_conn_id);
@@ -910,7 +909,7 @@ int process_client_packet (struct tl_in_state *tlio_in, int op, connection_job_t
 
 int client_packet_job_run (job_t job, int op, struct job_thread *JT) {
   struct client_packet_info *D = (struct client_packet_info *)(job->j_custom);
-  
+
   switch (op) {
   case JS_RUN: {
     struct tl_in_state *tlio_in = tl_in_state_alloc ();
@@ -1316,7 +1315,7 @@ int process_http_query (struct tl_in_state *tlio_in, job_t HQJ) {
 	}
       }
     }
-    
+
     int res = forward_mtproto_packet (tlio_in, c, D->data_size, remote_ip_port, 0);
     return res ? 1 : -404;
   }
@@ -1326,7 +1325,7 @@ int process_http_query (struct tl_in_state *tlio_in, job_t HQJ) {
 
 int http_query_job_run (job_t job, int op, struct job_thread *JT) {
   struct http_query_info *HQ = (struct http_query_info *)(job->j_custom);
-  
+
   switch (op) {
   case JS_RUN: { // ENGINE context
     lru_insert_conn (HQ->conn);
@@ -1399,10 +1398,10 @@ int hts_stats_execute (connection_job_t c, struct raw_message *msg, int op) {
   if (D->uri_size != 6) {
     return -404;
   }
-  
+
   char ReqHdr[MAX_HTTP_HEADER_SIZE];
   assert (rwm_fetch_data (msg, &ReqHdr, D->header_size) == D->header_size);
-  
+
   if (memcmp (ReqHdr + D->uri_offset, "/stats", 6)) {
     return -404;
   }
@@ -1419,7 +1418,7 @@ int hts_stats_execute (connection_job_t c, struct raw_message *msg, int op) {
   job_signal (JOB_REF_CREATE_PASS (c), JS_RUN);
 
   sb_release (&sb);
-  
+
   return 0;
 }
 
@@ -1520,7 +1519,7 @@ int do_rpcs_execute (void *_data, int s_len) {
   }
   return JOB_COMPLETED;
 }
-  
+
 
 int ext_rpcs_execute (connection_job_t c, int op, struct raw_message *msg) {
   int len = msg->total_bytes;
@@ -1577,7 +1576,7 @@ int finish_postponed_http_response (void *_data, int len) {
     assert (CONN_INFO(C)->pending_queries > 0);
     assert (CONN_INFO(C)->pending_queries == 1);
     CONN_INFO(C)->pending_queries = 0;
-    --pending_http_queries; 
+    --pending_http_queries;
     // check_conn_buffers (C);
     http_flush (C, 0);
   } else {
@@ -1639,12 +1638,12 @@ int client_send_message (JOB_REF_ARG(C), long long in_conn_id, struct tl_in_stat
     assert (tl_copy_through (tlio_in, tlio_out, TL_IN_REMAINING, 1) >= 0);
   } TLS_END;
 
-  if (check_conn_buffers (C) < 0) { 
+  if (check_conn_buffers (C) < 0) {
     job_decref (JOB_REF_PASS (C));
-    return -1; 
+    return -1;
   } else {
     job_decref (JOB_REF_PASS (C));
-    return 1; 
+    return 1;
   }
 }
 
@@ -1723,7 +1722,7 @@ int forward_mtproto_packet (struct tl_in_state *tlio_in, connection_job_t C, int
  */
 
 /* ----------- query rpc forwarding ------------ */
- 
+
 int forward_tcp_query (struct tl_in_state *tlio_in, connection_job_t c, conn_target_job_t S, int flags, long long auth_key_id, int remote_ip_port[5], int our_ip_port[5]) {
   connection_job_t d = 0;
   int c_fd = CONN_INFO(c)->fd;

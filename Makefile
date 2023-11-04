@@ -4,6 +4,8 @@ EXE = ${OBJ}/bin
 
 COMMIT := $(shell git log -1 --pretty=format:"%H")
 
+MACH := $(shell uname -m)
+
 ARCH =
 ifeq ($m, 32)
 ARCH = -m32
@@ -12,7 +14,10 @@ ifeq ($m, 64)
 ARCH = -m64
 endif
 
-CFLAGS = $(ARCH) -O3 -std=gnu11 -Wall -mpclmul -march=core2 -mfpmath=sse -mssse3 -fno-strict-aliasing -fno-strict-overflow -fwrapv -DAES=1 -DCOMMIT=\"${COMMIT}\" -D_GNU_SOURCE=1 -D_FILE_OFFSET_BITS=64
+CFLAGS = $(ARCH) -O3 -std=gnu11 -Wall -fno-strict-aliasing -fno-strict-overflow -fwrapv -DAES=1 -DCOMMIT=\"${COMMIT}\" -D_GNU_SOURCE=1 -D_FILE_OFFSET_BITS=64
+ifneq ($(MACH),aarch64)
+CFLAGS += -mpclmul -march=core2 -mfpmath=sse -mssse3
+endif
 LDFLAGS = $(ARCH) -ggdb -rdynamic -lm -lrt -lcrypto -lz -lpthread -lcrypto
 
 LIB = ${OBJ}/lib
@@ -27,7 +32,7 @@ DEPDIRS := ${DEP} $(addprefix ${DEP}/,${PROJECTS})
 ALLDIRS := ${DEPDIRS} ${OBJDIRS}
 
 
-.PHONY:	all clean 
+.PHONY:	all clean
 
 EXELIST	:= ${EXE}/mtproto-proxy
 
@@ -62,8 +67,12 @@ LIB_OBJS_NORMAL := \
 	${OBJ}/engine/engine-rpc-common.o \
 	${OBJ}/net/net-thread.o ${OBJ}/net/net-stats.o ${OBJ}/common/proc-stat.o \
 	${OBJ}/common/kprintf.o \
-	${OBJ}/common/precise-time.o ${OBJ}/common/cpuid.o \
+	${OBJ}/common/precise-time.o \
 	${OBJ}/common/server-functions.o ${OBJ}/common/crc32.o \
+
+ifneq ($(MACH),aarch64)
+LIB_OBJS_NORMAL += ${OBJ}/common/cpuid.o
+endif
 
 LIB_OBJS := ${LIB_OBJS_NORMAL}
 
@@ -73,11 +82,11 @@ DEPENDENCE_ALL		:=	${DEPENDENCE_NORM} ${DEPENDENCE_STRANGE} ${DEPENDENCE_LIB}
 
 OBJECTS_ALL		:=	${OBJECTS} ${LIB_OBJS}
 
-all:	${ALLDIRS} ${EXELIST} 
+all:	${ALLDIRS} ${EXELIST}
 dirs: ${ALLDIRS}
-create_dirs_and_headers: ${ALLDIRS} 
+create_dirs_and_headers: ${ALLDIRS}
 
-${ALLDIRS}:	
+${ALLDIRS}:
 	@test -d $@ || mkdir -p $@
 
 -include ${DEPENDENCE_ALL}
@@ -100,4 +109,3 @@ clean:
 	rm -rf ${OBJ} ${DEP} ${EXE} || true
 
 force-clean: clean
-

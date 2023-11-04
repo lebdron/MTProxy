@@ -303,6 +303,7 @@ static unsigned crc32c_table0[256] = {
 #define CRC32C_REFLECTED_X8191 0xcdc220ddll
 #define CRC32C_REFLECTED_X16383 0x1acaec54ll
 
+#if defined(__x86_64__) || defined(__i386__)
 #ifdef __LP64__
 static unsigned crc32c_partial_sse42 (const void *data, long len, unsigned crc) {
   const char *p = data;
@@ -560,6 +561,7 @@ static unsigned crc32c_partial_sse42 (const void *data, long len, unsigned crc) 
   return crc;
 }
 #endif
+#endif
 
 unsigned crc32c_partial_four_tables (const void *data, long len, unsigned crc) {
   const int *p = (const int *) data;
@@ -614,6 +616,7 @@ static unsigned crc32c_combine_generic (unsigned crc1, unsigned crc2, int64_t le
   return gf32_combine_generic (crc32c_powers, crc1, len2) ^ crc2;
 }
 
+#if defined(__x86_64__) || defined(__i386__)
 static unsigned crc32c_combine_clmul (unsigned crc1, unsigned crc2, int64_t len2) {
   static unsigned int crc32c_powers[252] __attribute__ ((aligned(16)));
   if (len2 <= 0) {
@@ -639,11 +642,13 @@ static unsigned crc32c_combine_clmul (unsigned crc1, unsigned crc2, int64_t len2
   );
   return crc ^ ((unsigned) (T >> 32)) ^ crc2;
 }
+#endif
 
 static void crc32c_init (void) __attribute__ ((constructor));
 void crc32c_init (void) {
-  kdb_cpuid_t *p = kdb_cpuid ();
   compute_crc32c_combine = &crc32c_combine_generic;
+#if defined(__x86_64__) || defined(__i386__)
+  kdb_cpuid_t *p = kdb_cpuid ();
   if (p->ecx & (1 << 20)) {
     crc32c_partial = crc32c_partial_sse42;
 #ifdef __LP64__
@@ -652,11 +657,12 @@ void crc32c_init (void) {
       compute_crc32c_combine = &crc32c_combine_clmul;
     }
 #endif
-  } else {
+  } else
+#endif
+  {
     crc32c_partial = &crc32c_partial_four_tables;
   }
 }
 
 crc32_partial_func_t crc32c_partial;
 crc32_combine_func_t compute_crc32c_combine;
-
